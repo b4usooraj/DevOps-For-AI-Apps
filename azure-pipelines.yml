@@ -10,7 +10,7 @@ variables:
 steps:
 - task: Bash@3
   inputs:
-    filePath: '$(System.DefaultWorkingDirectory)/_b4usooraj_DevOps-For-AI-Apps/downloadblob.sh'
+    filePath: 'downloadblob.sh'
     failOnStderr: true
 - task: Docker@2
   inputs:
