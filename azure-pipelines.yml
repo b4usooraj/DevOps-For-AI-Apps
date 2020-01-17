@@ -1,19 +1,62 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - master
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'Ubuntu:latest'
+
+variables:
+  Model_API_URL: 'http://localhost:88'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+- task: Bash@3
+  inputs:
+    filePath: '$(System.DefaultWorkingDirectory)/_b4usooraj_DevOps-For-AI-Apps/downloadblob.sh'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/_b4usooraj_DevOps-For-AI-Apps'
+    failOnStderr: true
+- task: Docker@2
+  inputs:
+    containerRegistry: 'AI Docker Registry'
+    repository: 'model-api'
+    command: 'build'
+    Dockerfile: '$(System.DefaultWorkingDirectory)/_b4usooraj_DevOps-For-AI-Apps/flaskwebapp/dockerfile'
+- task: CmdLine@2
+  inputs:
+    script: |
+      #!/bin/bash
+      
+      echo "Getting Build container ID"
+      BUILD_CONTAINER_ID=$(docker ps --filter "status=running" --format "{{.ID}}")
+      
+      echo "Starting Model API container"
+      docker run -d $BUILD_CONTAINER_ID aidevops.azurecr.io/model-api:$(Build.BuildId)
+- task: CmdLine@2
+  inputs:
+    script: |
+      #!/bin/bash
+      
+      echo "Waiting"
+      sleep 10
+      
+      echo "Testing API"
+      reply=$(curl -s $(Model_API_URL)/version)
+      
+      if [[ $reply == "2.0rc1" ]];
+      then
+            echo -e "Successfully validated the API call"
+      else
+            echo "API call failed"
+      fi
+- task: Docker@2
+  inputs:
+    containerRegistry: 'AI Docker Registry'
+    repository: 'model-api'
+    command: 'push'
+- task: CopyFiles@2
+  inputs:
+    Contents: '**'
+    TargetFolder: '$(build.artifactstagingdirectory)'
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
