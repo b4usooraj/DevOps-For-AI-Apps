@@ -18,7 +18,7 @@ steps:
     containerRegistry: 'AI Docker Registry'
     repository: 'model-api'
     command: 'build'
-    Dockerfile: '$(System.DefaultWorkingDirectory)/_b4usooraj_DevOps-For-AI-Apps/flaskwebapp/dockerfile'
+    Dockerfile: 'flaskwebapp/dockerfile'
 - task: CmdLine@2
   inputs:
     script: |
