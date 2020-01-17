@@ -11,7 +11,6 @@ steps:
 - task: Bash@3
   inputs:
     filePath: '$(System.DefaultWorkingDirectory)/_b4usooraj_DevOps-For-AI-Apps/downloadblob.sh'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/_b4usooraj_DevOps-For-AI-Apps'
     failOnStderr: true
 - task: Docker@2
   inputs:
