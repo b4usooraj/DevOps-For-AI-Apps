@@ -2,7 +2,7 @@ trigger:
 - master
 
 pool:
-  vmImage: 'Ubuntu:latest'
+  vmImage: 'ubuntu-16.04'
 
 variables:
   Model_API_URL: 'http://localhost:88'
